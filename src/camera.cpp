@@ -38,8 +38,8 @@ Ray Camera::CreateRay<std::mt19937>(const V2i &pixel,
 
   std::uniform_real_distribution<> pixel_offset(0., 1.);
 
-  double x = (1. - 2. * ((double)pixel.x + pixel_offset(rng)) / width_);
-  double y = (1. - 2. * ((double)pixel.y + pixel_offset(rng)) / height_);
+  double x = (-1. + 2. * ((double)pixel.x + pixel_offset(rng)) / width_);
+  double y = ( 1. - 2. * ((double)pixel.y + pixel_offset(rng)) / height_);
 
   V3 vx =  onb3_.x_axis * x;
   V3 vy =  onb3_.y_axis * y / aspect_ratio_;
