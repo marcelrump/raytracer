@@ -13,6 +13,7 @@
 // Project headers
 #include "camera.h"
 #include "plane.h"
+#include "renderer.h"
 #include "scene.h"
 #include "sphere.h"
 #include "triangle.h"
@@ -28,7 +29,7 @@ int main()
   // Allocate memory for the image
   V3 * memory = (V3 *)malloc(sizeof(V3) * width * height);
 
-  Camera camera(width, height, {0., 50., 0.}, {0., -0.0, -1.});
+  Camera camera(width, height, {0., 50., 0.}, {0., -0.04, -1.});
   // camera.SetFocus(0.01, 3.);
 
   Scene scene;
@@ -41,4 +42,25 @@ int main()
   scene.Add(Sphere(20., {-20., 20.,  -97.}, Material{Color{0., 1., 1.}}));
   scene.Add(Sphere(20., { 50., 20., -128.}, Material{Color{1., 1., 1.}}));
   scene.Add(Triangle({-100., 50., -150.}, {0., 0., -150.}, {-100., 0., -100.}, Material{Color{1., 1., 1.}}));
+
+  Renderer renderer(camera, scene);
+  
+  for (int y = 0; y < height; y++)
+  {
+    for (int x = 0; x < width; x++)
+    {
+      memory[y * width + x] = renderer.Render({x, y});
+    }
+  }
+
+  FILE * image;
+  image = fopen("image.ppm", "wb");
+  fprintf(image, "P3\n%d %d\n%d\n", width, height, 255); 
+  for (int i = 0; i < width * height; i++)
+  {
+    fprintf(image,"%d %d %d ", int(memory[i].r * 255.),
+                               int(memory[i].g * 255.),
+                               int(memory[i].b * 255.));
+  } 
+  fclose(image);
 }
