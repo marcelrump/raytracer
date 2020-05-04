@@ -48,7 +48,7 @@ Ray Camera::CreateRay<std::mt19937>(const V2i &pixel,
   V3 direction = Norm3(vx + vy + vz);
 
   if (aperture_ == 0)
-    return Ray{eye_, direction, 0, INF};
+    return Ray{eye_, direction};
 
   V3 focal_point = eye_ + direction * focal_length_; 
 
@@ -61,7 +61,7 @@ Ray Camera::CreateRay<std::mt19937>(const V2i &pixel,
   V3 origin = eye_ + (onb3_.x_axis * cos(angle) * radius)
                    + (onb3_.y_axis * sin(angle) * radius);
 
-  return Ray{origin, Norm3(focal_point - origin), 0, INF};
+  return Ray{origin, Norm3(focal_point - origin)};
 }
 
 void Camera::SetFocus(double aperture, double focal_length)
