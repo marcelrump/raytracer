@@ -35,4 +35,6 @@ typedef Vector3<int>    V3i;
 typedef Vector3<float>  V3f;
 typedef Vector3<double> V3d;
 
+typedef V3 Color;
+
 #endif // RAYTRACER_SRC_TYPES_H_
