@@ -3,6 +3,7 @@
 
 // C system headers
 // (more precisely: headers in angle brackets with the .h extension), e.g. <unistd.h>, <stdlib.h>.
+#include <omp.h>
 
 // C++ standard library headers
 // (without file extension), e.g. <algorithm>, <cstddef>.
@@ -45,6 +46,7 @@ int main()
 
   Renderer renderer(camera, scene);
   
+  #pragma omp parallel for
   for (int y = 0; y < height; y++)
   {
     for (int x = 0; x < width; x++)
