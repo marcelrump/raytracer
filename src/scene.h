@@ -24,6 +24,7 @@ class Scene
     primitives_.emplace_back(std::make_unique<T>(primitive));
   }
 
+  Ray CreateShadowRay(const V3 &origin) const;
   Hit Intersect(const Ray &ray) const;
 };
 

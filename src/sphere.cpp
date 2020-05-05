@@ -19,7 +19,7 @@ bool Sphere::Intersect(const Ray &ray, Hit *hit) const
   V3 co = ray.origin - center_;
 
   // a = d * d (= 1 if d normalized)
-  double a = 1.; // ray.direction * ray.direction
+  double a = ray.direction * ray.direction;
 
   // b = 2d * (O - C)
   double b = 2. * ray.direction * co;
@@ -39,8 +39,10 @@ bool Sphere::Intersect(const Ray &ray, Hit *hit) const
   double t_1 = (-b - delta) / (2. * a);
   double t_2 = (-b + delta) / (2. * a);
 
-  if (t_2 < ray.t_min) return false; // Sphere not infront of camera
-  if (t_2 < ray.t_min) return false; // Sphere is too far away
+  // Check if intersection point lies within the ray interval.
+  if (t_2 < ray.t_min) return false; // Sphere is too close
+  if (t_1 > ray.t_max) return false; // Sphere is too far away
+  if (t_1 < ray.t_min && t_2 > ray.t_max) return false;
 
   double t = t_1 < ray.t_min ? t_2 : t_1;
   hit->distance = t;

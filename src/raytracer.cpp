@@ -38,8 +38,8 @@ int main()
   scene.Add(Plane({   0., 100.,    0.}, {0., 1., 0.}, Material{Color{0.75, 0.75, 0.75}}));
   scene.Add(Plane({-100.,   0.,    0.}, {1., 0., 0.}, Material{Color{0.75, 0.25, 0.25}}));
   scene.Add(Plane({ 100.,   0.,    0.}, {1., 0., 0.}, Material{Color{0.25, 0.75, 0.25}}));
-  scene.Add(Plane({   0.,   0.,  150.}, {0., 0., 1.}, Material{Color{0.25, 0.25, 0.25}}));
-  scene.Add(Plane({   0.,   0., -150.}, {0., 0., 1.}, Material{Color{0.25, 0.25, 0.25}}));
+  scene.Add(Plane({   0.,   0.,  150.}, {0., 0., 1.}, Material{Color{0.75, 0.75, 0.75}}));
+  scene.Add(Plane({   0.,   0., -150.}, {0., 0., 1.}, Material{Color{0.75, 0.75, 0.75}}));
   scene.Add(Sphere(20., {-20., 20.,  -97.}, Material{Color{0., 1., 1.}}));
   scene.Add(Sphere(20., { 50., 20., -128.}, Material{Color{1., 1., 1.}}));
   scene.Add(Triangle({-100., 50., -150.}, {0., 0., -150.}, {-100., 0., -100.}, Material{Color{1., 1., 1.}}));
@@ -60,9 +60,9 @@ int main()
   fprintf(image, "P3\n%d %d\n%d\n", width, height, 255); 
   for (int i = 0; i < width * height; i++)
   {
-    fprintf(image,"%d %d %d ", int(memory[i].r * 255.),
-                               int(memory[i].g * 255.),
-                               int(memory[i].b * 255.));
+    fprintf(image,"%d %d %d ", int(clamp(memory[i].r) * 255),
+                               int(clamp(memory[i].g) * 255),
+                               int(clamp(memory[i].b) * 255));
   } 
   fclose(image);
 }
