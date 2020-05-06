@@ -13,6 +13,7 @@
 
 // Project headers
 #include "camera.h"
+#include "material.h"
 #include "plane.h"
 #include "renderer.h"
 #include "scene.h"
@@ -41,7 +42,7 @@ int main()
   scene.Add(Plane({   0.,   0.,  150.}, {0., 0., 1.}, Material{Color{0.75, 0.75, 0.75}}));
   scene.Add(Plane({   0.,   0., -150.}, {0., 0., 1.}, Material{Color{0.75, 0.75, 0.75}}));
   scene.Add(Sphere(20., {-20., 20.,  -97.}, Material{Color{0., 1., 1.}}));
-  scene.Add(Sphere(20., { 50., 20., -128.}, Material{Color{1., 1., 1.}}));
+  scene.Add(Sphere(20., { 50., 20., -128.}, Material{Color{0., 0., 0.}, REFLECTION_ONLY}));
   scene.Add(Triangle({-100., 50., -150.}, {0., 0., -150.}, {-100., 0., -100.}, Material{Color{1., 1., 1.}}));
 
   Renderer renderer(camera, scene);

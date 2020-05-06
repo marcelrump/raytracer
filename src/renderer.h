@@ -23,9 +23,10 @@ class Renderer
 
  public:
   Renderer(const Camera &camera, const Scene &scene);
-
-  V3 Radiance(const Ray &ray, int depth);
   V3 Render(const V2i &pixel);
+
+ private:
+  V3 Radiance(const Ray &ray, int depth);
 };
 
 #endif // RAYTRACER_SRC_RENDERER_H_

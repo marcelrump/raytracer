@@ -11,8 +11,7 @@ Ray Scene::CreateShadowRay(const V3 &origin) const
   // there is only one single point-like light source.
   V3 light = {0., 75., -75.};
   V3 l = light - origin;
-  
-  return Ray{origin, Norm3(l), EPS, Length(l) - EPS};
+  return Ray{origin, Norm3(l), EPS, Length(l)};
 }
 
 Hit Scene::Intersect(const Ray &ray) const

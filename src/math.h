@@ -10,6 +10,11 @@
 #define EPS 1e-10
 #define INF std::numeric_limits<double>::infinity()
 
-inline double clamp(double x) { return x < 0 ? 0 : x > 1 ? 1 : x; }
+inline double clamp(double x,
+                    double min = 0.,
+                    double max = 1.)
+{
+  return x < min ? min : x > max ? max : x;
+}
 
 #endif // RAYTRACER_SRC_MATH_H_
