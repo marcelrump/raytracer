@@ -16,8 +16,8 @@ bool Plane::Intersect(const Ray &ray, Hit *hit) const
   // can be parameterized in two different ways:
   //   I = O + t * d,
   //   (P - I) * n = 0,
-  // where the travel distance is given by
-  //   t = (P - O) * n / (d * n)
+  // where the travel time t is given by
+  //   t = (P - O) * n / (d * n).
   double t = (p_ - ray.origin) * normal_ / (ray.direction * normal_);
 
   if (t < ray.t_min || t > ray.t_max)

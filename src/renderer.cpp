@@ -37,9 +37,7 @@ V3 Renderer::Radiance(const Ray &ray, int depth)
   // V3 color = {};
   V3 color = hit.material.color * hit.material.ambient;
 
-  // Adjust the normal orientation
-  if (hit.normal * ray.direction > 0) hit.normal *= -1.;
-
+  // Evaluate the Phong illumination model in case of diffuse and/or glossy objects.
   if (hit.material.type == DIFFUSE_AND_GLOSSY)
   {
     // Check if the object lies in shadow.
@@ -49,33 +47,91 @@ V3 Renderer::Radiance(const Ray &ray, int depth)
     
     if (obstacle.distance == INF)
     {
+      double d = hit.material.diffuse;
+      double s = hit.material.specular;
+      double g = hit.material.glossiness;
+      V3 c = hit.material.color;
+      V3 n = hit.normal;
+      V3 l = Norm3(shadow_ray.direction);
+      V3 r = Norm3(ray.direction);
+      V3 h = Norm3(l - r);
+
       // Add a diffuse component
-      color += hit.material.color * hit.material.diffuse
-                                  * fabs(hit.normal * shadow_ray.direction);
+      color += c * d * fabs(n * l);
 
       // Add a specular component
       V3 light_color = {1., 1., 1.};
-      V3 h = Norm3(shadow_ray.direction - ray.direction);
-      color += light_color * hit.material.specular
-                           * pow(fabs(hit.normal * h), hit.material.glossiness);
+      color += light_color * s * pow(fabs(n * h), g);
     }
   }
   
+  // NOTE(marcel): For now, reflection and refraction is only handled
+  // correctly for spheres, since that makes it easier to identify
+  // transitions between refractive indices.
   if (hit.material.type == REFLECTION_AND_REFRACTION)
   {
+    double eta_i = 1.5;
+    double eta_o = 1.0;
+
+    V3 r = Norm3(ray.direction);
+    V3 n = hit.normal;
+
+    // Check which side the ray comes from and adjust both normal
+    // as well as refractive indices accordingly.
+    double cos_theta = n * r;
+    if (cos_theta > 0)
+    {
+      std::swap(eta_i, eta_o);
+      n *= -1.;
+    }
+    else
+    {
+      cos_theta *= -1.;
+    }
+
+    // Calculate the Fresnel factor using Schlick's approximation.
+    double R_0 = pow((eta_i - eta_o) / (eta_i + eta_o), 2.);
+    double R = R_0 + (1. - R_0) * pow(1. - cos_theta, 5.);
+    double T = 1. - R;
+ 
+    V3 v = r / cos_theta;
+    double k = pow(eta_i / eta_o, 2.) * LengthSquared(v) - LengthSquared(v + n);
+
+    // If not total internal reflection, then cast refracted ray.
+    if (k < 0)
+    {
+      R = 1.;
+      T = 0.;
+    }
+    else
+    {
+      double kf = 1 / sqrt(k);
+
+      Ray refracted_ray = {};
+      refracted_ray.origin = hit.position;
+      refracted_ray.direction = kf * (n + v) - n;
+
+      color += T * Radiance(refracted_ray, depth + 1);
+    }
+
+    Ray reflected_ray = {};
+    reflected_ray.origin = hit.position;
+    reflected_ray.direction = Norm3(r + 2. * n);
     
+    color += R * Radiance(reflected_ray, depth + 1);
   }
 
   // NOTE(marcel): Purely reflective objects are handled as perfect mirrors.
   if (hit.material.type == REFLECTION_ONLY)
   {
+    V3 r = Norm3(ray.direction);
+    V3 n = hit.normal;
+
     Ray reflected_ray = {};
     reflected_ray.origin = hit.position;
-    reflected_ray.direction = Norm3(ray.direction + 2. * hit.normal
-                                                       * fabs(hit.normal * ray.direction));                                                       
+    reflected_ray.direction = Norm3(r + 2. * n);
     
-    V3 reflection = Radiance(reflected_ray, depth + 1);
-    color += reflection;
+    color += Radiance(reflected_ray, depth + 1);
   }
 
   return color;

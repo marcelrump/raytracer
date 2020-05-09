@@ -38,17 +38,18 @@ bool Triangle::Intersect(const Ray &ray, Hit *hit) const
   // In vector algebra the scalar triple product a * (b x c) can also
   // be understood as the determinant of the corresponding 3x3 matrix.
 
+  V3 d  = ray.direction;
   V3 oc = ray.origin - c_;
   V3 ac = a_ - c_;
   V3 bc = b_ - c_;
 
-  double det = -ScalarTripleProduct(ray.direction, ac, bc);
+  double det = ScalarTripleProduct(-d, ac, bc);
   // Check if ray and triangle are parallel.
   if (fabs(det) < EPS) return false;
 
-  double t =  ScalarTripleProduct(oc, ac, bc) / det;
-  double u = -ScalarTripleProduct(ray.direction, oc, bc) / det;
-  double v = -ScalarTripleProduct(ray.direction, ac, oc) / det;
+  double t = ScalarTripleProduct(oc, ac, bc) / det;
+  double u = ScalarTripleProduct(-d, oc, bc) / det;
+  double v = ScalarTripleProduct(-d, ac, oc) / det;
 
   // Check if intersection point lies within the triangle.
   if (u < 0 || u > 1 || v < 0 || v > 1 || u + v > 1)

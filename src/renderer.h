@@ -18,8 +18,8 @@ class Renderer
   const Camera &camera_;
   const Scene &scene_;
   std::mt19937 rng_;
-  int samples_  = 1;
-  int max_depth = 1;
+  int samples_  = 4;
+  int max_depth = 4;
 
  public:
   Renderer(const Camera &camera, const Scene &scene);
