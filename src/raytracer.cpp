@@ -31,7 +31,7 @@ int main()
   // Allocate memory for the image
   V3 * memory = (V3 *)malloc(sizeof(V3) * width * height);
 
-  Camera camera(width, height, {0., 50., 0.}, {0., -0.04, -1.});
+  Camera camera(width, height, {0., 50., 0.}, {0., -0.14, -1.});
   // camera.SetFocus(0.01, 3.);
 
   Scene scene;

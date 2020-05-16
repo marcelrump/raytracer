@@ -34,12 +34,13 @@ V3 Renderer::Radiance(const Ray &ray, int depth)
   Hit hit = scene_.Intersect(ray);
   if (hit.distance == INF) return Color{0., 0., 0.};
 
-  // V3 color = {};
-  V3 color = hit.material.color * hit.material.ambient;
+  V3 color = {};
 
   // Evaluate the Phong illumination model in case of diffuse and/or glossy objects.
   if (hit.material.type == DIFFUSE_AND_GLOSSY)
   {
+    color = hit.material.color * hit.material.ambient;
+
     // Check if the object lies in shadow.
     // TODO(marcel): This should be sampled at some point.
     Ray shadow_ray = scene_.CreateShadowRay(hit.position);
@@ -116,7 +117,7 @@ V3 Renderer::Radiance(const Ray &ray, int depth)
 
     Ray reflected_ray = {};
     reflected_ray.origin = hit.position;
-    reflected_ray.direction = Norm3(r + 2. * n);
+    reflected_ray.direction = r + 2. * n * fabs(r * n);
     
     color += R * Radiance(reflected_ray, depth + 1);
   }
@@ -125,11 +126,11 @@ V3 Renderer::Radiance(const Ray &ray, int depth)
   if (hit.material.type == REFLECTION_ONLY)
   {
     V3 r = Norm3(ray.direction);
-    V3 n = hit.normal;
+    V3 n = Norm3(hit.normal);
 
     Ray reflected_ray = {};
     reflected_ray.origin = hit.position;
-    reflected_ray.direction = Norm3(r + 2. * n);
+    reflected_ray.direction = r + 2. * n * fabs(n * r);
     
     color += Radiance(reflected_ray, depth + 1);
   }
