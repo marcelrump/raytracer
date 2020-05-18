@@ -5,6 +5,7 @@
 #define RAYTRACER_SRC_SCENE_H_
 
 #include <memory>
+#include <random>
 #include <vector>
 
 #include "hit.h"
@@ -24,7 +25,10 @@ class Scene
     primitives_.emplace_back(std::make_unique<T>(primitive));
   }
 
-  Ray CreateShadowRay(const V3 &origin) const;
+  // NOTE(marcel): Supports only <std::mt19937> for now.
+  template<typename RNG = std::mt19937>
+  Ray CreateShadowRay(const V3 &origin, RNG &rng) const;
+
   Hit Intersect(const Ray &ray) const;
 };
 

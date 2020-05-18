@@ -43,7 +43,7 @@ V3 Renderer::Radiance(const Ray &ray, int depth)
 
     // Check if the object lies in shadow.
     // TODO(marcel): This should be sampled at some point.
-    Ray shadow_ray = scene_.CreateShadowRay(hit.position);
+    Ray shadow_ray = scene_.CreateShadowRay(hit.position, rng_);
     Hit obstacle = scene_.Intersect(shadow_ray);
     
     if (obstacle.distance == INF)

@@ -5,11 +5,15 @@
 
 #include "math.h"
 
-Ray Scene::CreateShadowRay(const V3 &origin) const
+template<>
+Ray Scene::CreateShadowRay<std::mt19937>(const V3 &origin,
+                                         std::mt19937 &rng) const
 {
-  // Note(marcel): For the time being,
-  // there is only one single point-like light source.
-  V3 light = {0., 75., -75.};
+  std::uniform_real_distribution<> r(-1., 1.);
+  
+  // Note(marcel): For the time being there is only one light source.
+  V3 light = {20. * r(rng), 99.9, 20. * r(rng) - 75.};
+
   V3 l = light - origin;
   return Ray{origin, Norm3(l), EPS, Length(l)};
 }
