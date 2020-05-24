@@ -27,49 +27,63 @@ V3 Renderer::Render(const V2i &pixel)
 // TODO(marcel): Maybe implement a background color.
 V3 Renderer::Radiance(const Ray &ray, int depth)
 {
-  // End recursive part of the algorithm after a certain number of iterations.
-  if (depth > max_depth) return Color{0., 0., 0.};
-
   // Check if something was hit.
   Hit hit = scene_.Intersect(ray);
   if (hit.distance == INF) return Color{0., 0., 0.};
 
-  V3 color = {};
+  // End recursive part of the algorithm after a certain number of iterations.
+  if (depth > max_depth) return hit.material.emission;
 
-  // Evaluate the Phong illumination model in case of diffuse and/or glossy objects.
+  // Do not reflect off of light sources
+  if (hit.material.emission != V3{0., 0., 0.}) return hit.material.emission;  
+
+  V3 color = hit.material.emission;
   if (hit.material.type == DIFFUSE_AND_GLOSSY)
   {
-    color = hit.material.color * hit.material.ambient;
+    V3 n = hit.normal;
+    V3 r = Norm3(ray.direction);
 
-    // Check if the object lies in shadow.
-    // TODO(marcel): This should be sampled at some point.
-    Ray shadow_ray = scene_.CreateShadowRay(hit.position, rng_);
-    Hit obstacle = scene_.Intersect(shadow_ray);
-    
-    if (obstacle.distance == INF)
-    {
-      double d = hit.material.diffuse;
-      double s = hit.material.specular;
-      double g = hit.material.glossiness;
-      V3 c = hit.material.color;
-      V3 n = hit.normal;
-      V3 l = Norm3(shadow_ray.direction);
-      V3 r = Norm3(ray.direction);
-      V3 h = Norm3(l - r);
+    if (n * r > 0) n *= -1.;
 
-      // Add a diffuse component
-      color += c * d * fabs(n * l);
+    // Create orthonormal basis
+    B3 onb3;
+    if (VectorProduct(n, {1., 0., 0.}) != V3(0., 0., 0.))
+      onb3.x_axis = Norm3(VectorProduct(n, {1., 0., 0.}));
+    else
+      onb3.x_axis = Norm3(VectorProduct(n, {0., 1., 0.}));
+    onb3.y_axis = Norm3(VectorProduct(onb3.x_axis, n));
+    onb3.z_axis = Norm3(n);
 
-      // Add a specular component
-      V3 light_color = {1., 1., 1.};
-      color += light_color * s * pow(fabs(n * h), g);
-    }
+    std::uniform_real_distribution<> unit(0., 1.);
+    double phi = 2. * PI * unit(rng_);
+    double theta = PI / 2. * unit(rng_);
+
+    V3 d = onb3.x_axis * sin(theta) * cos(phi)
+         + onb3.y_axis * sin(theta) * sin(phi)
+         + onb3.z_axis * cos(theta);
+
+    Ray diffuse_ray = {hit.position, d};
+    color += Multiply(hit.material.color, Radiance(diffuse_ray, depth + 1));
   }
-  
+
+  // NOTE(marcel): Purely reflective objects are handled as perfect mirrors.
+  if (hit.material.type == REFLECTIVE)
+  {
+    V3 r = Norm3(ray.direction);
+    V3 n = Norm3(hit.normal);
+
+    Ray reflected_ray = {};
+    reflected_ray.origin = hit.position;
+    reflected_ray.direction = r + 2. * n * fabs(n * r);
+    
+    color += Radiance(reflected_ray, depth + 1);
+  }
+
+    
   // NOTE(marcel): For now, reflection and refraction is only handled
   // correctly for spheres, since that makes it easier to identify
   // transitions between refractive indices.
-  if (hit.material.type == REFLECTION_AND_REFRACTION)
+  if (hit.material.type == REFLECTIVE_AND_REFRACTIVE)
   {
     double eta_i = 1.5;
     double eta_o = 1.0;
@@ -120,19 +134,6 @@ V3 Renderer::Radiance(const Ray &ray, int depth)
     reflected_ray.direction = r + 2. * n * fabs(r * n);
     
     color += R * Radiance(reflected_ray, depth + 1);
-  }
-
-  // NOTE(marcel): Purely reflective objects are handled as perfect mirrors.
-  if (hit.material.type == REFLECTION_ONLY)
-  {
-    V3 r = Norm3(ray.direction);
-    V3 n = Norm3(hit.normal);
-
-    Ray reflected_ray = {};
-    reflected_ray.origin = hit.position;
-    reflected_ray.direction = r + 2. * n * fabs(n * r);
-    
-    color += Radiance(reflected_ray, depth + 1);
   }
 
   return color;

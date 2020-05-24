@@ -165,4 +165,13 @@ inline T ScalarTripleProduct(const Vector3<T> &u,
   return u * VectorProduct(v, w);
 }
 
+template <typename T>
+inline Vector3<T> Multiply(const Vector3<T> &u,
+                           const Vector3<T> &v)
+{
+  return {u.x * v.x,
+          u.y * v.y,
+          u.z * v.z};
+}
+
 #endif // RAYTRACER_SRC_VECTOR3_H_

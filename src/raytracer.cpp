@@ -8,6 +8,7 @@
 // C++ standard library headers
 // (without file extension), e.g. <algorithm>, <cstddef>.
 #include <memory>
+#include <random>
 
 // Other libraries' headers
 
@@ -25,8 +26,10 @@
 // int main(int argc, const char * argv[])
 int main()
 {
-  int width = 1920;
-  int height = 1080;
+  // int width = 1920;
+  // int height = 1080;
+  int width = 600;
+  int height = 400;
 
   // Allocate memory for the image
   V3 * memory = (V3 *)malloc(sizeof(V3) * width * height);
@@ -35,17 +38,16 @@ int main()
   // camera.SetFocus(0.01, 3.);
 
   Scene scene;
-  scene.Add(Plane({   0.,   0.,    0.}, {0., 1., 0.}, Material{Color{0.75, 0.75, 0.75}}));
-  scene.Add(Plane({   0., 100.,    0.}, {0., 1., 0.}, Material{Color{0.75, 0.75, 0.75}}));
-  scene.Add(Plane({-100.,   0.,    0.}, {1., 0., 0.}, Material{Color{0.75, 0.25, 0.25}}));
-  scene.Add(Plane({ 100.,   0.,    0.}, {1., 0., 0.}, Material{Color{0.25, 0.75, 0.25}}));
-  scene.Add(Plane({   0.,   0.,  150.}, {0., 0., 1.}, Material{Color{0.75, 0.75, 0.75}}));
-  scene.Add(Plane({   0.,   0., -150.}, {0., 0., 1.}, Material{Color{0.75, 0.75, 0.75}}));
-  scene.Add(Sphere(20., {-50., 20.,  -90.}, Material{Color{0., 0., 0.}, REFLECTION_ONLY}));
-  scene.Add(Sphere(20., { 40., 20.,  -90.}, Material{Color{0., 0., 0.}, REFLECTION_AND_REFRACTION}));
-  scene.Add(Triangle({-100., 50., -150.}, {0., 0., -150.}, {-100., 0., -100.}, Material{Color{0.5, 0.5, 0.5}}));
-  scene.Add(Triangle({-20., 99.99, -55.}, {-20., 99.99, -95.}, {20., 99.99, -95.}, Material{Color{1., 1., 1.}, DIFFUSE_AND_GLOSSY, 1.}));
-  scene.Add(Triangle({-20., 99.99, -55.}, { 20., 99.99, -95.}, {20., 99.99, -55.}, Material{Color{1., 1., 1.}, DIFFUSE_AND_GLOSSY, 1.}));
+  scene.Add(Plane({   0., 100.,    0.}, {0., 1., 0.}, Material{Color{0.75, 0.75, 0.75}})); // Top
+  scene.Add(Plane({   0.,   0.,    0.}, {0., 1., 0.}, Material{Color{0.75, 0.75, 0.75}})); // Bottom
+  scene.Add(Plane({-100.,   0.,    0.}, {1., 0., 0.}, Material{Color{0.75, 0.25, 0.25}})); // Left
+  scene.Add(Plane({ 100.,   0.,    0.}, {1., 0., 0.}, Material{Color{0.25, 0.75, 0.25}})); // Right
+  scene.Add(Plane({   0.,   0., -150.}, {0., 0., 1.}, Material{Color{0.25, 0.25, 0.75}})); // Front
+  scene.Add(Plane({   0.,   0.,  150.}, {0., 0., 1.}, Material{Color{0.75, 0.75, 0.75}})); // Back
+  scene.Add(Sphere(20., {-50., 20.,  -50.}, Material{Color{0.5, 0.5, 0.5}, {}, REFLECTIVE}));
+  scene.Add(Sphere(20., { 40., 20.,  -50.}, Material{Color{0.5, 0.5, 0.5}, {}, REFLECTIVE_AND_REFRACTIVE}));
+  scene.Add(Triangle({-10., 99.9, -65.}, {-10., 99.9, -85.}, {10., 99.9, -85.}, Material{Color{0., 0., 0.}, {50., 50., 50.}}));
+  scene.Add(Triangle({-10., 99.9, -65.}, { 10., 99.9, -85.}, {10., 99.9, -65.}, Material{Color{0., 0., 0.}, {50., 50., 50.}}));
 
   Renderer renderer(camera, scene);
   
